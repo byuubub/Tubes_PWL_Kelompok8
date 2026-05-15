@@ -19,6 +19,17 @@ class MedicalRecord extends Model
         'case_status' => 'string',
     ];
 
+    protected static function booted()
+    {
+        static::addGlobalScope('hospital', function ($query) {
+            if (auth()->check() && auth()->user()->hospital_id) {
+                $query->whereHas('patient', function ($q) {
+                    $q->where('hospital_id', auth()->user()->hospital_id);
+                });
+            }
+        });
+    }
+
     // Relasi ke pasien
     public function patient()
     {
@@ -41,14 +52,6 @@ class MedicalRecord extends Model
     public function prescriptions()
     {
         return $this->hasMany(Prescription::class);
-    }
-
-    // Relasi ke bill (opsional: bisa aja bill di-create dari medical record)
-    // Karena bill lebih terikat ke appointment atau kunjungan, tapi kita tetap bisa
-    public function bill()
-    {
-        return $this->hasOne(Bill::class, 'patient_id', 'patient_id') // perlu logika lebih rumit
-            ->where('appointment_id', $this->appointment_id);
     }
 
     // Helper untuk menandai sembuh

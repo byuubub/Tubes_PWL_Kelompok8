@@ -19,6 +19,15 @@ class Patient extends Model
         'blood_type' => 'string',
     ];
 
+    protected static function booted()
+    {
+        static::addGlobalScope('hospital', function ($query) {
+            if (auth()->check() && auth()->user()->hospital_id) {
+                $query->where('hospital_id', auth()->user()->hospital_id);
+            }
+        });
+    }
+
     // Relasi ke user (akun login pasien)
     public function user()
     {

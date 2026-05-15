@@ -18,6 +18,17 @@ class Appointment extends Model
         'status' => 'string',
     ];
 
+    protected static function booted()
+    {
+        static::addGlobalScope('hospital', function ($query) {
+            if (auth()->check() && auth()->user()->hospital_id) {
+                $query->whereHas('patient', function ($q) {
+                    $q->where('hospital_id', auth()->user()->hospital_id);
+                });
+            }
+        });
+    }
+
     // Relasi ke pasien
     public function patient()
     {
