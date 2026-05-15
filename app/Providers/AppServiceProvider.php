@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Models\MedicalRecord;      // <-- Tambahkan ini
-use App\Observers\MedicalRecordObserver; // <-- Pastikan observer sudah ada
+use App\Models\MedicalRecord;
+use App\Observers\MedicalRecordObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
