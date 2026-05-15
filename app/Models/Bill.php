@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Bill extends Model
 {
-     use HasFactory;
+    use HasFactory;
 
     protected $fillable = [
         'patient_id', 'appointment_id', 'total_amount', 'status', 'payment_due_date',
@@ -18,6 +18,17 @@ class Bill extends Model
         'status' => 'string',
         'payment_due_date' => 'date',
     ];
+
+    protected static function booted()
+    {
+        static::addGlobalScope('hospital', function ($query) {
+            if (auth()->check() && auth()->user()->hospital_id) {
+                $query->whereHas('patient', function ($q) {
+                    $q->where('hospital_id', auth()->user()->hospital_id);
+                });
+            }
+        });
+    }
 
     // Relasi ke pasien
     public function patient()

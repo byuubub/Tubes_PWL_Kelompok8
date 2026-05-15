@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Queue extends Model
 {
-     use HasFactory;
+    use HasFactory;
 
     protected $fillable = [
         'patient_id', 'doctor_id', 'queue_date', 'queue_number', 'type',
@@ -21,6 +21,17 @@ class Queue extends Model
         'completed_at' => 'datetime',
         'priority' => 'integer',
     ];
+
+    protected static function booted()
+    {
+        static::addGlobalScope('hospital', function ($query) {
+            if (auth()->check() && auth()->user()->hospital_id) {
+                $query->whereHas('patient', function ($q) {
+                    $q->where('hospital_id', auth()->user()->hospital_id);
+                });
+            }
+        });
+    }
 
     // Relasi ke pasien
     public function patient()
@@ -61,6 +72,7 @@ class Queue extends Model
                 $q->where('hospital_id', $hospitalId);
             });
         }
+
         return $query->orderBy('priority')->orderBy('queue_number')->first();
     }
 }
